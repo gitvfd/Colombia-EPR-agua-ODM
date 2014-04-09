@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+    <meta charset="utf-8">
+    <title>Colombia - Acceso al agua potable</title>
+    <script type="text/javascript" src="http://d3js.org/d3.v3.js"></script>
+    <script src="http://d3js.org/queue.v1.min.js"></script>
+    <link href="css/bootstrap.css" rel="stylesheet" media="screen">
+</head>  
+<style>
+
+body {
+  font-family: "HelveticaNeueLT", Helvetica, Arial, sans-serif;
+  margin: auto;
+  position: relative;
+  width: 560px;
+}
+
+text {
+  font: 12px sans-serif;
+  color: #717171;
+}
+
+#source {
+  font-size: 10px;
+  font-style:italic;
+  color: #717171;
+  font-family: "HelveticaNeueLT", Helvetica, Arial, sans-serif;
+}
+
+.axis path {
+  display: none;
+}
+
+.axis line {
+  fill: none;
+  stroke: #717171;
+  shape-rendering: crispEdges;
+}
+
+#tooltip {
+      position: absolute;
+      width: auto;
+      height: auto;
+      padding: 10px;
+      background-color: white;
+      -webkit-border-radius: 2px;
+      -moz-border-radius: 2px;
+      border-radius: 2px;
+      -webkit-box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+      -moz-box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+      box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+      pointer-events: none;
+    }
+
+#tooltip.hidden {
+      display: none;
+    }
+
+#tooltip p {
+      margin: 0;
+      font-family: sans-serif;
+      font-size: 13px;
+      line-height: 16px;
+    }
+
+#tooltip2 {
+      position: absolute;
+      width: auto;
+      height: auto;
+      padding: 10px;
+      background-color: white;
+      -webkit-border-radius: 2px;
+      -moz-border-radius: 2px;
+      border-radius: 2px;
+      -webkit-box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+      -moz-box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+      box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+      pointer-events: none;
+    }
+
+#tooltip2.hidden {
+      display: none;
+    }
+
+#tooltip2 p {
+      margin: 0;
+      font-family: sans-serif;
+      font-size: 13px;
+      line-height: 16px;
+    }
+
+.button {
+      display: inline-block;
+      outline: none;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      font: 13px/100% "HelveticaNeueLT", Helvetica, Arial, sans-serif;
+      padding: .25em 1em .45em;
+      text-shadow: 0 1px 1px rgba(0,0,0,.3);
+      -webkit-border-radius: .5em; 
+      -moz-border-radius: .5em;
+      border-radius: .5em;
+      -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);
+      -moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
+      box-shadow: 0 1px 2px rgba(0,0,0,.2);
+    }
+.button:hover {
+      text-decoration: none;
+    }
+
+.button:active {
+      position: relative;
+      top: 1px;
+    }
+#selectedStep.hidden {
+      display: none;
+    }
+
+</style>
+<body>
+    <script src="js/step1.js"></script>
+    <script src="js/step2.js"></script> 
+    <script src="js/step3.js"></script>
+
+<div id="selectedStep" class="hidden">step1</div>
+<div id="tooltip" class="hidden">
+    <p><strong><span id="variableTootip">All</span></strong> : </p>
+    <p><i><span id="valueTooltip">XX</span> %</i></p>
+</div>
+<div id="tooltip2" class="hidden">
+    <p><strong><span id="variableTootip">All</span></strong> : </p>
+    <p><i><span id="valueTooltip">XX</span> %</i> (<span id="areaTooltip">XXX</span>)</p>
+</div>
+<div class="row">
+<center>
+  <h1>Acceso al agua potable y saneamiento</h1>
+  <h2>Objetivos de Desarrollo del Milenio en Colombia</h2>
+  <h3>
+</center>
+  <br>
+</div>
+<div class="row">
+  <div class="span7">
+    <center>
+<button class="button grey" id="Dimension" type="submit" value="step1" title="step1" onclick="step1()">1993</button>
+<button class="button grey" id="Dimension" type="submit" value="step1" title="step1" onclick="step2()">2010</button>
+<button class="button grey" id="Dimension" type="submit" value="step1" title="step1" onclick="step3()">Urbano vs Rural</button>
+</center>
+  </div >
+</div>
+<br>
+<div class="row" id="textToDisplay">
+</div>
+<br>
+<div class="row">
+  <div class="span8" id="area1">
+    <script>
+      var margin = {top: 10, right: 20, bottom: 30, left: 40},
+          width = 560 - margin.left - margin.right,
+          height = 400 - margin.top - margin.bottom;
+
+
+      var formatPercent = d3.format("0.002%");
+
+      var y = d3.scale.linear()
+          .domain([0, 100])
+          .range([height, 0],.2);
+
+      var x = d3.scale.ordinal()
+          .rangeRoundBands([0, width], .6);
+
+      var xAxis = d3.svg.axis()
+          .scale(x)
+          .orient("bottom");
+
+      var yAxis = d3.svg.axis()
+          .scale(y)
+          .orient("left")
+          .tickSize(-width, 0,0);
+
+
+      var colorLimit = d3.scale.ordinal()
+                      .domain(["Meta ODM 2015", "Meta Nacional 2015"])
+                      .range(["rgb(192,0,0)","rgb(228,108,10)"]);
+
+      var color = d3.scale.ordinal()
+                      .domain(["Total", "Urbano","Rural"])
+                      .range(["rgb(49,133,156)","rgb(41,199,255)","rgb(217,224,33)"]);
+
+      var svg = d3.select("#area1").append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      var g=svg.append("g");
+
+      d3.json("data/water.json", function(error, data) {
+
+
+        x.domain(data.map(function(d) { return d.indicator; }));
+
+        svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxis)
+            .selectAll("text")
+            .attr("y", 20)
+            .attr("x", -40)
+            .attr("dy", ".35em")
+            .attr("transform", "rotate(0)")
+            .style("text-anchor", "start");
+
+        svg.append("g")
+            .attr("class", "y axis")
+            .call(yAxis);
+
+        svg.append("text")
+            .attr("x",-80)
+            .attr("y",-30)
+            .text("% de la poblacion")
+            .style("font-style","italic")
+            .attr("transform", function(d) {
+                return "rotate(-90)" 
+                });
+
+      
+      });
+      setTimeout(step1, 200);
+
+    </script>
+  </div>
+</div>
+<br>
+<div class="row">
+  <div class="span8" id="area2">
+    <script>
+      var margin1 = {top: 5, right: 0, bottom: 5, left: 0},
+          width1 = 560 - margin1.left - margin1.right,
+          height1 = 50 - margin1.top - margin1.bottom;
+
+
+      var svg2 = d3.select("#area2").append("svg")
+          .attr("width", width1 + margin1.left + margin1.right)
+          .attr("height", height1 + margin1.top + margin1.bottom)
+          .append("g")
+          .attr("transform", "translate(" + margin1.left + "," + margin1.top + ")");
+
+
+        svg2.append("text")
+            .attr("x",10)
+            .attr("y",10)
+            .text("Legend:")
+            .style("font-style","normal")
+            /**.style("fill","grey")
+            .style("font","20px sans-serif")**/
+            .style("font-weight","normal");
+
+        svg2.selectAll("circle")
+            .data([{target:"Meta ODM 2015",color:"rgb(192,0,0)"},{target:"Meta Nacional 2015",color:"rgb(228,108,10)"}])
+            .enter().append("circle")
+                .attr('cx', function(d) { return width1/10+10})
+                .attr('cy', function(d,i) { return height1/(1+i)-2 })
+                .attr('r',5)
+            .style("fill",function(d) { 
+              return d.color;  
+            })
+            .style("opacity",1);
+
+        svg2.selectAll()
+            .data([{target:"Meta ODM 2015",color:"rgb(192,0,0)"},{target:"Meta Nacional 2015",color:"rgb(228,108,10)"}])
+            .enter().append("text")
+            .text(function(d) {return d.target;})
+            .attr("x", function(d) { return width1/10 + 20})
+            .attr("y", function(d,i) {return height1/(1+i) + 2 });    
+
+        svg2.selectAll("rect") 
+            .data([{target:"Total",color:"rgb(49,133,156)"},{target:"Urbano",color:"rgb(41,199,255)"},{target:"Rural",color:"rgb(217,224,33)"}])
+            .enter().append("rect")
+            .attr("x", function(d,i) { return width/2+100*i; })
+            .attr("width", 20)
+            .attr("y", function(d) { return height1/2 -2; })
+            .attr("height", 10)
+            .style("fill",function(d) { return d.color;})
+            .style("opacity",.9);   
+
+          svg2.selectAll() 
+            .data([{target:"Total",color:"rgb(49,133,156)"},{target:"Urbano",color:"rgb(41,199,255)"},{target:"Rural",color:"rgb(217,224,33)"}])
+            .enter().append("text")
+            .attr("x", function(d,i) { return width/2+100*i+25; })
+            .attr("y", function(d) { return height1/2 + 8; })
+            .text(function(d) {
+                return d.target;
+            });
+
+    </script>
+  </div>
+</div>
+<br>
+<div class="row">
+  <div id="source" class="span7"><a href="http://dx.doi.org/10.1787/888932997835">Fuentes: DANE (2012, 2010 and 2008), Encuesta Nacional de Calidad de Vida; Government of Colombia (2012), Informe de Seguimiento. Objetivos de Desarrollo del Milenio; IDEAM, 2012.</a>
+  </div>
+</div>
+</body>
