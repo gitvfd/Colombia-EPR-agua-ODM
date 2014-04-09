@@ -128,7 +128,7 @@ if(document.getElementById("selectedStep").innerHTML=="step3"){
 	      .attr("y", function(d) { return y(d.value); })
 	      .attr("height", function(d) { return height - y(d.value); }); 
 
-	    document.getElementById("textToDisplay").innerHTML = "En el 2010, Colombia estuvo cerca de cumplir con el Objetivo de Desarrollo del Milenio en acceso al agua potable, sin embargo se requiere una mayor inversi�n para lograr la menta en el acceso al saneamiento";         
+	    document.getElementById("textToDisplay").innerHTML = "En el 2010, Colombia estuvo cerca de cumplir con el Objetivo de Desarrollo del Milenio en acceso al agua potable, sin embargo se requiere una mayor inversion para lograr la menta en el acceso al saneamiento";         
 	
 	    svg.selectAll("rect")
 	        .on("mouseover",function(d){
