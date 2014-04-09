@@ -49,7 +49,7 @@ function step3(){
 	        })
 	        .style("opacity",1);	      
 
-	    document.getElementById("textToDisplay").innerHTML = "Urbano vs. Rural: Debido al crecimiento de la población urbana, mantener los niveles de cobertura en las ciudades constituye un desafío. Las zonas urbanas tienen en promedio mayor acceso al agua potable y servicios de saneamiento comparadas con las zonas rurales";    
+	    document.getElementById("textToDisplay").innerHTML = "Urbano vs. Rural: Debido al crecimiento de la poblacion urbana, mantener los niveles de cobertura en las ciudades constituye un desafio. Las zonas urbanas tienen en promedio mayor acceso al agua potable y servicios de saneamiento comparadas con las zonas rurales";    
 	    
 	    svg.selectAll("rect")
 	        .on("mouseover",function(d){
